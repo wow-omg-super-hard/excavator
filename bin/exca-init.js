@@ -56,15 +56,17 @@ inquirer
                     if (files.filter(function (file) {
                         return fs.statSync(file).isDirectory() && file === destName;
                     }).length) {
-                        console.error(chalk.red(destName + '已经存在，请重新创建'));
+                        console.error(chalk.red(destName + '目录已经存在，请重新创建'));
                         return;
                     }
-                } else if (currDirName === destName) {
-                    dest = '.'
+
+                    destName = __wrapperPath(process.cwd(), destName);
+                } else {
+                    destName = __wrapperPath(process.cwd(), destName);
                 }
 
                 next(Object.assign(state, { 
-                    destPath: __wrapperPath(destName) 
+                    destPath: destName
                 }));    
             },
 

@@ -1,6 +1,6 @@
 {
-  "name": "excavator",
-  "version": "1.0.0",
+  "name": "excavator-front-cli",
+  "version": "1.0.4",
   "description": "* 繁琐重复性 `npm install`loader,plugin等工作\r * 库都在升级版本，如果每次都重新弄，难免会出现版本不对的错误\r * 创建新项目时，经常出现错误，总要花时间去拍错",
   "main": "index.js",
   "bin": {
@@ -13,13 +13,12 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "commander": "^2.20.0"
-  },
-  "devDependencies": {
     "chalk": "^2.4.2",
+    "commander": "^2.20.0",
     "download-git-repo": "^2.0.0",
     "handlebars": "^4.1.2",
     "inquirer": "^6.3.1",
     "ora": "^3.4.0"
-  }
+  },
+  "devDependencies": {}
 }
