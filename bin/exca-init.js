@@ -13,10 +13,6 @@ var downloadTemp = require('../lib/download-temp'),
     generatorMiddleware = require('../lib/generator-middleware');
 
 var questions = [{
-    name: 'proName',
-    message: '输入新创建的工程目录名',
-    default: 'work'    
-}, {
     name: 'dest',
     message: '输入新创建的项目目录名',
     default: 'app'
@@ -48,35 +44,35 @@ inquirer
     .then(function (answers) {
         generatorMiddleware([
             // 根据条件获取工程目录路径
-            function getProDirPath (next, state) {
+            function getDestPath (next, state) {
                 // 获取当前目录的所有子目录和文件
                 var files = fs.readdirSync('.'),
                     currDirName = path.basename(process.cwd()),
-                    proName = state.proName;
+                    destName = state.destName;
 
                 // 如果非空目录
                 if (files.length) {
                     // 如果子目录存在和要设置的工程目录相同，则提示工程目录已存在，请重新填写
                     if (files.filter(function (file) {
-                        return fs.statSync(file).isDirectory() && file === proName;
+                        return fs.statSync(file).isDirectory() && file === destName;
                     }).length) {
-                        console.error(chalk.red(state.proName + '已经存在，请重新创建'));
+                        console.error(chalk.red(destName + '已经存在，请重新创建'));
                         return;
                     }
-                } else if (currDirName === proName) {
-                    proName = '.'
-                } 
+                } else if (currDirName === destName) {
+                    dest = '.'
+                }
 
                 next(Object.assign(state, { 
-                    proDirPath: Object__wrapperPath(proName) 
+                    destPath: __wrapperPath(destName) 
                 }));    
             },
 
             // 创建工程目录
-            function createProDir (next, state) {
-                fs.mkdir(state.proDirPath, function (err) {
+            function createDestDir (next, state) {
+                fs.mkdir(state.destPath, function (err) {
                     if (err) {
-                        console.error(chalk.red('创建' + proDirPath + '失败，请重新创建'));
+                        console.error(chalk.red('创建' + destPath + '失败，请重新创建'));
                         return;
                     }
 
@@ -85,25 +81,22 @@ inquirer
             },
 
             // 下载github项目结构模板到项目目录
-            function downloadProTemp (next, state) {
+            function downloadDestTemp (next, state) {
                 // github项目结构模板地址
                 var proUrl = 'direct:https://github.com/wow-omg-super-hard/react-directory-temp.git#master',
-                    dest = __wrapperPath(process.cwd(), answers.dest),
                     spinner = ora('正在下载项目结构模板，请等待，源地址：' + proUrl.slice())
 
                 // download-git-repo如果该目录存在也是不能生效的，所以下载前需删除该目录
-                removeDir(dest);
+                removeDir(state.destPath);
 
                 // 增加等待下载的交互
                 spinner.start();
 
                 // 开始下载
-                downloadTemp(proUrl, dest)
+                downloadTemp(proUrl, state.destPath)
                     .then(function () {
                         spinner.succeed();
-                        next(Object.assign(state, {
-                            dest: dest
-                        }));
+                        next(state);
                     })
                     .catch(function (err) {
                         spinner.fail();
@@ -113,10 +106,10 @@ inquirer
 
             // 将生成的项目中的非图片、font文件的内容占位符替换成命令行输入，比如package.json的项目名、描述、版本号作者通过Handlebars模板引擎替换
             // 目前是简单的，只将项目目录package.json、index.html替换
-            function updateProTemp (next, state) {
+            function updateDestTemp (next, state) {
                 // 获得对应的文件
-                var packageJSONFilePath = path.join(state.dest, 'package.json'),
-                    indexViewFilePath = path.join(state.dest, 'index.html');
+                var packageJSONFilePath = path.join(state.destPath, 'package.json'),
+                    indexViewFilePath = path.join(state.destPath, 'index.html');
 
                 Promise.all([
                     // 获得相关文件的content
@@ -144,6 +137,6 @@ inquirer
                 }
             }
         ], { 
-            proName: answers.proName 
+            destName: answers.dest
         });
     });
